@@ -2,8 +2,6 @@ package com.ef.LogReader;
 
 import com.ef.enums.DurationEnum;
 import com.ef.utils.Util;
-
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.PreparedStatement;
@@ -11,7 +9,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.Properties;
 
 /***
  * Author: Kazeem Olanipekun
@@ -19,25 +16,51 @@ import java.util.Properties;
  */
 public class LogManager {
 
-
     /**
      * This is used to read log from file for db storage
      *
      * @throws SQLException
      */
-    public void readLog() throws SQLException {
+    public LogManager(String[] args) throws SQLException {
         Util.setConnection(Util.initConnection());
         if (Util.getConnection() == null) throw new SQLException("Connection failed");
         Util.createAccessLogTable(); // initiate Table creation
         try {
-            Properties props = Util.getProperties();
-            String fileString = new String(Files.readAllBytes(Paths.get(props.getProperty("filePath"))));
-            loadAccessLogToDb(fileString.split("\\n")); // initiate db storage of access log
-        } catch (IOException e) {
+            this.run(args);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Error Message: " + e.getMessage());
+        }
+    }
+    /**
+     * This process argument and output expected result
+     */
+    private void run(String[] args) throws Exception {
+        String startDate = null;
+        String duration = null;
+        String accessLog = null;
+        int threshold = 0;
+        for (String arg : args) {
+            if (arg.equalsIgnoreCase("startDate")) {
+                startDate = arg.split("=")[1];
+            } else if (arg.equalsIgnoreCase("duration")) {
+                duration = arg.split("=")[1];
+            } else if (arg.equalsIgnoreCase("threshold")) {
+                threshold = Integer.valueOf(arg.split("=")[1]);
+            } else if (arg.equalsIgnoreCase("accesslog")) {
+                accessLog = arg.split("=")[1];
+            }
+        }
+        try {
+            System.out.println("StartDate=" + startDate + "  duration=" + duration + " threshold=" + threshold + " accessLog=" + accessLog);
+            if (startDate == null || duration == null || threshold < 0 || accessLog == null)
+                throw new Exception("Wrong Argument passed");
+            String fileString = new String(Files.readAllBytes(Paths.get(accessLog)));
+            loadAccessLogToDb(fileString.split("\\n"), startDate, duration, threshold); // initiate db storage of access log
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
-
 
     /**
      * This is used to load access log file into db for storage
@@ -45,7 +68,7 @@ public class LogManager {
      * @param fileStrings
      * @throws SQLException
      */
-    private void loadAccessLogToDb(String[] fileStrings) throws SQLException {
+    private void loadAccessLogToDb(String[] fileStrings, String startDate, String duration, int threshold) throws SQLException {
         String sql = "INSERT INTO access_logs (created_at, ip_address, request, request_status, user_agent) VALUES (?, ?, ?, ?, ?)";
         Util.getConnection().setAutoCommit(false);
         PreparedStatement ps = Util.getConnection().prepareStatement(sql);
@@ -61,7 +84,7 @@ public class LogManager {
         }
         ps.executeBatch();
         Util.getConnection().commit();
-        analyseInputWithThreshold("2017-01-01.00:00:00", "daily", 500);
+        analyseInputWithThreshold(startDate, duration, threshold); // This is used to run the analysis carried out
     }
 
 
@@ -93,12 +116,7 @@ public class LogManager {
         Util.getConnection().close();
     }
 
-    /**
-     * This is used to store output result in db
-     */
-    public void StoreLogResult() {
 
-    }
 
 }
 

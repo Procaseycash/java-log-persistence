@@ -7,11 +7,12 @@ import java.sql.SQLException;
 public class Parser {
 
     public static void main(String[] args) {
-	// write your code here
         try {
-            new LogManager().readLog();
+            new LogManager(args);
         } catch (SQLException e) {
             e.printStackTrace();
+            System.out.println("Error Message:" + e.getMessage());
         }
+
     }
 }
