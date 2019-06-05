@@ -1,4 +1,4 @@
-package com.test.enums;
+package com.ef.enums;
 
 public enum DurationEnum {
     HOURLY("hourly"),

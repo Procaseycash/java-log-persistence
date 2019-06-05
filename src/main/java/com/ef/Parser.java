@@ -1,10 +1,10 @@
-package com.test;
+package com.ef;
 
-import com.test.LogReader.LogManager;
+import com.ef.LogReader.LogManager;
 
 import java.sql.SQLException;
 
-public class Main {
+public class Parser {
 
     public static void main(String[] args) {
 	// write your code here

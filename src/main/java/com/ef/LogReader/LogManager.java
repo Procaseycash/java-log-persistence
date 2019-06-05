@@ -1,7 +1,7 @@
-package com.test.LogReader;
+package com.ef.LogReader;
 
-import com.test.enums.DurationEnum;
-import com.test.utils.Util;
+import com.ef.enums.DurationEnum;
+import com.ef.utils.Util;
 
 import java.io.IOException;
 import java.nio.file.Files;
