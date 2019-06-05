@@ -41,13 +41,14 @@ public class LogManager {
         String accessLog = null;
         int threshold = 0;
         for (String arg : args) {
-            if (arg.equalsIgnoreCase("startDate")) {
+//            System.out.println("arg=" + arg);
+            if (arg.contains("--startDate")) {
                 startDate = arg.split("=")[1];
-            } else if (arg.equalsIgnoreCase("duration")) {
+            } else if (arg.contains("--duration")) {
                 duration = arg.split("=")[1];
-            } else if (arg.equalsIgnoreCase("threshold")) {
+            } else if (arg.contains("--threshold")) {
                 threshold = Integer.valueOf(arg.split("=")[1]);
-            } else if (arg.equalsIgnoreCase("accesslog")) {
+            } else if (arg.contains("--accesslog")) {
                 accessLog = arg.split("=")[1];
             }
         }
