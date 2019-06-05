@@ -61,7 +61,7 @@ public class LogManager {
         }
         ps.executeBatch();
         Util.getConnection().commit();
-        analyseInputWithThreshold("2017-01-01.00:00:00", "daily", 200);
+        analyseInputWithThreshold("2017-01-01.00:00:00", "daily", 500);
     }
 
 
@@ -72,13 +72,11 @@ public class LogManager {
         String sDate = startDate.replace('.', 'T');
         startDate = startDate.replace('.', ' ');
         String endDate = "";
-        System.out.println("dd=" + DurationEnum.valueOf(duration.toUpperCase()));
         if (DurationEnum.valueOf(duration.toUpperCase()) == DurationEnum.HOURLY) {
             endDate = Timestamp.valueOf(LocalDateTime.parse(sDate).plusHours(1)).toString();
         } else if (DurationEnum.valueOf(duration.toUpperCase()) == DurationEnum.DAILY) {
             endDate = Timestamp.valueOf(LocalDateTime.parse(sDate).plusHours(23).plusMinutes(59).plusSeconds(59)).toString();
         }
-        System.out.println(startDate + '-' + endDate);
         String query = "SELECT ip_address, SUM(CASE WHEN ip_address IS NOT NULL THEN 1 else 0 END) AS ip_record " +
                 " FROM access_logs " +
                 " WHERE created_at >= ? AND created_at <= ? " +
@@ -87,10 +85,9 @@ public class LogManager {
         ps.setTimestamp(1, Timestamp.valueOf(startDate));
         ps.setTimestamp(2, Timestamp.valueOf(endDate));
         ps.setInt(3, threshold);
-        System.out.println("query = " + query);
         ResultSet rs = ps.executeQuery();
         while (rs.next()) {
-            System.out.println("Ip Address = " + rs.getString("ip_address") + " | " + rs.getInt("ip_record"));
+            System.out.printf("If you open the log file, %s has %d or more requests between %s and %s\n", rs.getString("ip_address"), rs.getInt("ip_record"), startDate, endDate);
         }
         rs.close();
         Util.getConnection().close();
