@@ -53,7 +53,7 @@ public class LogManager {
             }
         }
         try {
-            System.out.println("StartDate=" + startDate + "  duration=" + duration + " threshold=" + threshold + " accessLog=" + accessLog);
+//            System.out.println("StartDate=" + startDate + "  duration=" + duration + " threshold=" + threshold + " accessLog=" + accessLog);
             if (startDate == null || duration == null || threshold < 0 || accessLog == null)
                 throw new Exception("Wrong Argument passed");
             String fileString = new String(Files.readAllBytes(Paths.get(accessLog)));
