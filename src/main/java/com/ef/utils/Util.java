@@ -12,11 +12,8 @@ public class Util {
 
     /**
      * This is used to initiate connection to db
-     *
-     * @return
-     * @throws SQLException
      */
-    public static Connection initConnection() {
+    private static Connection initConnection() {
         Connection con = null;
         try {
             Properties pros = getProperties();
@@ -28,6 +25,7 @@ public class Util {
             e.printStackTrace();
             System.out.println(e.getMessage());
         }
+        connection = con;
         return con;
     }
 
@@ -35,17 +33,21 @@ public class Util {
         connection.createStatement().executeUpdate("DROP TABLE IF EXISTS access_logs");
     }
 
-    public static void createAccessLogTable() throws SQLException {
-        dropTableAccessLog(); // drop table
-        String sql = "CREATE TABLE  IF NOT EXISTS access_logs " +
-                "(id INTEGER not NULL AUTO_INCREMENT, " +
-                " created_at DATETIME, " +
-                " ip_address VARCHAR(255), " +
-                " request VARCHAR(255), " +
-                " request_status INTEGER, " +
-                " user_agent VARCHAR(255), " +
-                " PRIMARY KEY ( id ))";
-        connection.createStatement().executeUpdate(sql);
+    public static void createAccessLogTable() {
+        try {
+            dropTableAccessLog(); // drop table
+            String sql = "CREATE TABLE  IF NOT EXISTS access_logs " +
+                    "(id INTEGER not NULL AUTO_INCREMENT, " +
+                    " created_at DATETIME, " +
+                    " ip_address VARCHAR(255), " +
+                    " request VARCHAR(255), " +
+                    " request_status INTEGER, " +
+                    " user_agent VARCHAR(255), " +
+                    " PRIMARY KEY ( id ))";
+            connection.createStatement().executeUpdate(sql);
+        } catch (SQLException e) {
+            System.out.println("Error Message: " + e.getMessage());
+        }
     }
 
     /**
@@ -54,7 +56,7 @@ public class Util {
      * @return
      * @throws IOException
      */
-    public static Properties getProperties() throws IOException {
+    private static Properties getProperties() throws IOException {
         InputStream f = ClassLoader.getSystemResourceAsStream("app.properties");
         Properties pros = new Properties();
         pros.load(f);
@@ -62,10 +64,6 @@ public class Util {
     }
 
     public static Connection getConnection() {
-        return connection;
-    }
-
-    public static void setConnection(Connection connection) {
-        Util.connection = connection;
+        return connection != null ? connection : Util.initConnection();
     }
 }
