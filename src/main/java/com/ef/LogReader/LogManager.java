@@ -89,6 +89,7 @@ public class LogManager {
                 ps.addBatch();
             } catch (SQLException e) {
                 System.out.println("Error Message:" + e.getMessage());
+                System.exit(0);
             }
         });
         ps.executeBatch();
